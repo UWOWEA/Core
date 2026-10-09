@@ -1,3 +1,0 @@
-local addonName, addon = ...
-
-addon.Mocks.Example = {}

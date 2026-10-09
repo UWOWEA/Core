@@ -1,7 +1,7 @@
 ## Interface: 120100, 16001, 20506, 11509, 120105, 30405, 38002, 40402, 50504
-## Title: Uwowea Library: Addon Template
+## Title: Uwowea Library: Core
 ## IconTexture: Interface/AddOns/Uwowea_buff_tracker/art/logo
-## Notes: Addon Template
+## Notes: Core functionality
 ## Author: Jan Galek
 ## Version: 1.0.0
 ## X-Category: Uwowea Library
@@ -14,10 +14,8 @@
 ## Category-frFR: Uwowea
 ## Category-zhCN: Uwowea
 ## Category-zhTW: Uwowea
-## X-Curse-Project-ID: CURSEFORGE_ID
-
-
-Mocks\Mocks.lua
-Mocks\[Family]\Example.lua
+## X-Curse-Project-ID: 1735448
 
 Core.lua
+
+Commands.lua
