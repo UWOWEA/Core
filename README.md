@@ -220,18 +220,19 @@ This accepts `/myaddon add Power Word: Fortitude` and passes
 
 ## Spell API
 
-The Core addon exposes spell helpers through the global `Core.Spell` table.
+The Core addon exposes spell helpers through the global `Core.Spells` table.
 The spell files are loaded by `Uwowea_Core.toc`, so consuming addons only need
 to declare `Uwowea_Core` as a dependency.
 
-### `Core.Spell:GetInfo(spellIdentifier)`
+### `Core.Spells:GetInfo(spellIdentifier)`
 
 Returns the WoW `SpellInfo` object for a spell ID or spell name:
 
 ```lua
-local info = Core.Spell:GetInfo(12345)
+local info = Core.Spells:GetInfo(12345)
 if info then
     print(info.name, info.iconID)
+    print(info:IsHelpful())
 end
 ```
 
@@ -239,27 +240,44 @@ The result is cached by the identifier. The method returns `nil` when the
 spell cannot be resolved or when the client does not provide
 `C_Spell.GetSpellInfo`.
 
-### `Core.Spell:GetOverrides(spellIdentifier)`
+The returned value is a `Core.SpellInfo` object extending WoW's `SpellInfo`
+structure. It keeps the original spell fields and adds methods that use its
+own `spellID`:
+
+```lua
+local info = Core.Spells:GetInfo(12345)
+if info and info:IsHelpful() then
+    print(info.name, "is helpful")
+end
+
+if info and info:IsHarmful() then
+    print(info.name, "is harmful")
+end
+```
+
+These methods do not require the spell ID as an argument.
+
+### `Core.Spells:GetOverrides(spellIdentifier)`
 
 Returns a list of override spell IDs for the supplied spell ID or name. The
 result includes both Core's known aura overrides and the override returned by
 the WoW API when available:
 
 ```lua
-for _, overrideSpellID in ipairs(Core.Spell:GetOverrides(spellID)) do
+for _, overrideSpellID in ipairs(Core.Spells:GetOverrides(spellID)) do
     print("Override:", overrideSpellID)
 end
 ```
 
 The result is always a table and can be empty.
 
-### `Core.Spell:GetBaseSpell(spellIdentifier)`
+### `Core.Spells:GetBaseSpell(spellIdentifier)`
 
 Returns the base spell ID for an override spell, or `nil` when no base spell
 can be found:
 
 ```lua
-local baseSpellID = Core.Spell:GetBaseSpell(spellID)
+local baseSpellID = Core.Spells:GetBaseSpell(spellID)
 if baseSpellID then
     print("Base spell:", baseSpellID)
 end
@@ -275,7 +293,7 @@ corresponding `C_Spell` functions.
 `Uwowea_Core.toc` is the addon manifest and lists the Lua files loaded by WoW.
 Add new runtime files to that manifest in the order required by their
 dependencies. `Commands.lua` must be loaded before code that uses the
-`Commands` global. `Core.lua` initializes `Core.Spell` before
+`Commands` global. `Core.lua` initializes `Core.Spells` before
 `AuraOverrides.lua` and `Spell.lua` are loaded.
 
 ### LuaLS type information in consuming addons

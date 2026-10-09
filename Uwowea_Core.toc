@@ -21,4 +21,4 @@ Core.lua
 Commands.lua
 
 Spell\AuraOverrides.lua
-Spell\Spell.lua
+Spell\Spells.lua

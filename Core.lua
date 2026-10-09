@@ -1,6 +1,8 @@
 ---@meta _
 ---@class Core
----@field Spell Core.Spell
+---@field Spells Core.Spells
+---@field SpellInfo Core.SpellInfo
 Core = {
-    Spell = {},
+    Spells = {},
+    SpellInfo = {},
 }
