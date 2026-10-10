@@ -34,10 +34,6 @@ local commands = Commands.New("MY_ADDON", "/myaddon")
 
 The complete command setup is documented below.
 
-## License
-
-Uwowea Core is distributed under the [MIT License](./LICENSE).
-
 ## Command system
 
 `Commands.lua` provides a registry for WoW chat commands. A registry owns one
@@ -395,3 +391,7 @@ from the workspace definition.
 - If the command appears in chat but a multi-word value is split into several
   arguments, enable `rawArguments` for that subcommand or use quotes around
   the value.
+
+## License
+
+Uwowea Core is distributed under the [MIT License](./LICENSE).
