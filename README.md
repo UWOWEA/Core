@@ -288,13 +288,84 @@ The helper checks Core's custom override map first and then uses
 so addons can load without failing on clients that do not expose the
 corresponding `C_Spell` functions.
 
+## Game information
+
+The Core addon exposes information about the current WoW client through
+`Core.GameInfo`. It is initialized automatically when `GameInfo.lua` loads.
+
+### `Core.GameInfo`
+
+The object contains the values returned by WoW's `GetBuildInfo()`:
+
+```lua
+local gameInfo = Core.GameInfo
+
+print(gameInfo.buildVersion)
+print(gameInfo.buildNumber)
+print(gameInfo.buildDate)
+print(gameInfo.interfaceVersion)
+print(gameInfo.localizedVersion)
+print(gameInfo.buildInfo)
+print(gameInfo.currentVersion)
+```
+
+The detected game type is available as `gameInfo.type`:
+
+```lua
+if gameInfo.type then
+    print(gameInfo.type.name)
+    print(gameInfo.type.interfaceVersion)
+    print(gameInfo.type.expansionLevel)
+end
+```
+
+Supported game types are available through `Core.GameType`, including
+`CLASSIC`, `FOREVER`, `TBC`, `WOTLK`, `CATACLYSM`, `MOP`, `WOD`, `Legion`,
+`BFA`, `SL`, `DF`, `TWW`, `Midnight`, and `LastTitan`.
+
+### Methods
+
+#### `Core.GameInfo:Init()`
+
+Reads the current build information from `GetBuildInfo()` and updates the
+object. The method is called automatically during Core initialization.
+
+#### `Core.GameInfo:IsInicialized()`
+
+Returns whether the game information has been initialized. The method keeps
+the existing `IsInicialized` spelling for API compatibility.
+
+#### `Core.GameInfo:CheckInit()`
+
+Initializes the object if necessary and returns `true`:
+
+```lua
+Core.GameInfo:CheckInit()
+```
+
+#### `Core.GameInfo.Is(gameName)`
+
+Checks a game type by its constant name or localized display name:
+
+```lua
+if Core.GameInfo.Is("The Burning Crusade") then
+    print("Running on TBC")
+end
+```
+
+#### `Core.GameInfo:GetGameVersion()`
+
+Prints the current build and interface version values to the chat frame. Use
+the fields on `Core.GameInfo` when the values need to be consumed by addon
+logic rather than displayed.
+
 ## Development
 
 `Uwowea_Core.toc` is the addon manifest and lists the Lua files loaded by WoW.
 Add new runtime files to that manifest in the order required by their
 dependencies. `Commands.lua` must be loaded before code that uses the
 `Commands` global. `Core.lua` initializes `Core.Spells` before
-`AuraOverrides.lua` and `Spell.lua` are loaded.
+`AuraOverrides.lua` and `Spells.lua` are loaded.
 
 ### LuaLS type information in consuming addons
 

@@ -17,6 +17,7 @@
 ## X-Curse-Project-ID: 1735448
 
 Core.lua
+GameInfo.lua
 
 Commands.lua
 
