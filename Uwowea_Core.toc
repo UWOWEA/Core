@@ -23,3 +23,9 @@ Commands.lua
 
 Spell\AuraOverrides.lua
 Spell\Spells.lua
+
+Unit\Unit.lua
+Unit\Methods.lua
+Unit\Player.lua
+Unit\Target.lua
+Unit\Tokens.lua

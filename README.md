@@ -284,6 +284,88 @@ The helper checks Core's custom override map first and then uses
 so addons can load without failing on clients that do not expose the
 corresponding `C_Spell` functions.
 
+## Unit API
+
+`Core.Unit` provides an object-oriented proxy over WoW's global `Unit*`
+functions. Create an object for a unit token with `Core.Unit.Get()`:
+
+```lua
+local player = Core.Player
+local target = Core.Target
+
+print(player:Name())
+print(player:Class())
+print(player:IsDeadOrGhost())
+
+if target:Exists() and player:IsUnit("target") then
+    print("The target is the player")
+end
+```
+
+`Core.Unit` also exposes ready-to-use instances for the standard WoW unit
+tokens:
+
+```lua
+Core.Unit.Player
+Core.Unit.Target
+Core.Unit.Focus
+Core.Unit.Mouseover
+Core.Unit.Pet
+Core.Unit.Vehicle
+
+Core.Unit.Party1
+Core.Unit.Raid40
+Core.Unit.Arena5
+Core.Unit.Boss5
+Core.Unit.Nameplate40
+```
+
+Use `Core.Unit.Get()` for a custom or suffixed token, such as `targettarget`
+or `partypet1`.
+
+The proxy automatically maps shortened method names to the corresponding WoW
+function:
+
+| Proxy method | WoW function |
+| --- | --- |
+| `unit:Name()` | `UnitName(unitToken)` |
+| `unit:Class()` | `UnitClass(unitToken)` |
+| `unit:IsDeadOrGhost()` | `UnitIsDeadOrGhost(unitToken)` |
+| `unit:Exists()` | `UnitExists(unitToken)` |
+| `unit:IsUnit(otherToken)` | `UnitIsUnit(unitToken, otherToken)` |
+
+The full WoW function name is also supported when useful:
+
+```lua
+local health = player:UnitHealth()
+local power = player:UnitPower(0)
+```
+
+The documented Unit functions are implemented as real methods on the proxy.
+The unit token is automatically supplied as the first argument and additional
+arguments are passed through unchanged.
+
+Any newer global function whose name starts with `Unit` can still be called
+through the dynamic fallback without requiring another wrapper in Core.
+
+The Core methods and LuaLS annotations are generated from WoW's
+`UnitDocumentation`, so autocomplete includes the documented method names,
+parameters, and return values. For functions with multiple return values, all
+return types are exposed as a LuaLS tuple:
+
+```lua
+local mainHand, offHand, ranged = Core.Unit.Player:WeaponAttackPower()
+```
+
+Lua does not preserve names for multiple assigned return values, so use
+descriptive local variable names in the assignment. The runtime forwards the
+exact values and return values provided by the WoW API.
+
+`Core.Unit.Get()` validates only that the token is a non-empty string. It does
+not require the unit to exist, so objects can safely be created for dynamic
+tokens such as `party1`, `raid5`, or `nameplate3`. The underlying WoW function
+determines the return values for invalid or unavailable units.
+
 ## Game information
 
 The Core addon exposes information about the current WoW client through
