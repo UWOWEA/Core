@@ -4,6 +4,9 @@
 ---@field GetBaseSpell fun(self: Core.Spells, spellIdentifier: string|number): number|nil
 ---@field GetInfo fun(self: Core.Spells, spellIdentifier: string|number): Core.SpellInfo|nil
 ---@field IsTeleport fun(self: Core.Spells, spellIdentifier: string|number): boolean
+---@field IsAutoAttackSpell fun(self: Core.Spells, spellIdentifier: string|number): boolean
+---@field IsSpellDisabled fun(self: Core.Spells, spellIdentifier: string|number): boolean
+---@field IsConsumableSpell fun(self: Core.Spells, spellIdentifier: string|number): boolean
 ---@field RegisterTeleportSpell fun(self: Core.Spells, spellID: number)
 Core.Spells = Core.Spells or {}
 
@@ -11,6 +14,9 @@ Core.Spells = Core.Spells or {}
 ---@field IsHelpful fun(self: Core.SpellInfo): boolean
 ---@field IsHarmful fun(self: Core.SpellInfo): boolean
 ---@field IsTeleport fun(self: Core.SpellInfo): boolean
+---@field IsAutoAttackSpell fun(self: Core.SpellInfo): boolean
+---@field IsSpellDisabled fun(self: Core.SpellInfo): boolean
+---@field IsConsumableSpell fun(self: Core.SpellInfo): boolean
 Core.SpellInfo = Core.SpellInfo or {}
 Core.SpellInfo.__index = Core.SpellInfo
 
@@ -37,6 +43,21 @@ end
 ---@return number|nil
 function Core.SpellInfo:GetBaseSpell()
     return Core.Spells:GetBaseSpell(self.spellID)
+end
+
+---@return boolean
+function Core.SpellInfo:IsAutoAttackSpell()
+    return Core.Spells:IsAutoAttackSpell(self.spellID)
+end
+
+---@return boolean
+function Core.SpellInfo:IsSpellDisabled()
+    return Core.Spells:IsSpellDisabled(self.spellID)
+end
+
+---@return boolean
+function Core.SpellInfo:IsConsumableSpell()
+    return Core.Spells:IsConsumableSpell(self.spellID)
 end
 
 local function ExtendSpellInfo(info)
@@ -138,6 +159,44 @@ function Core.Spells:IsHarmful(spellIdentifier)
     return false
 end
 
+local function IsSpellPredicate(spellIdentifier, modernFunctionName, legacyFunctionName)
+    local modernFunction = C_Spell and C_Spell[modernFunctionName]
+    if type(modernFunction) == "function" then
+        local ok, result = pcall(modernFunction, spellIdentifier)
+        if ok then
+            return result == true
+        end
+    end
+
+    local legacyFunction = _G[legacyFunctionName]
+    if type(legacyFunction) == "function" then
+        local ok, result = pcall(legacyFunction, spellIdentifier)
+        if ok then
+            return result == true
+        end
+    end
+
+    return false
+end
+
+---@param spellIdentifier string|number spellID or spellName
+---@return boolean
+function Core.Spells:IsAutoAttackSpell(spellIdentifier)
+    return IsSpellPredicate(spellIdentifier, "IsAutoAttackSpell", "IsAutoAttackSpell")
+end
+
+---@param spellIdentifier string|number spellID or spellName
+---@return boolean
+function Core.Spells:IsSpellDisabled(spellIdentifier)
+    return IsSpellPredicate(spellIdentifier, "IsSpellDisabled", "IsSpellDisabled")
+end
+
+---@param spellIdentifier string|number spellID or spellName
+---@return boolean
+function Core.Spells:IsConsumableSpell(spellIdentifier)
+    return IsSpellPredicate(spellIdentifier, "IsConsumableSpell", "IsConsumableSpell")
+end
+
 ---@param spellIdentifier string|number spellID or spellName
 ---@return boolean
 function Core.Spells:IsTeleport(spellIdentifier)
@@ -151,10 +210,6 @@ function Core.Spells:IsTeleport(spellIdentifier)
 
 	if type(spellID) ~= "number" then
 		return false
-	end
-
-	if not info then
-		info = Core.Spells:GetInfo(spellID)
 	end
 
 	if Core.Spells.TeleportSpells[spellID] then

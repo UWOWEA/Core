@@ -23,6 +23,7 @@ Commands.lua
 
 Spell\AuraOverrides.lua
 Spell\Spells.lua
+Spell\SpellInfoMethods.lua
 Spell\TeleportSpells.lua
 
 Unit\Unit.lua

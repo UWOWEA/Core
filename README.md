@@ -257,6 +257,19 @@ end
 
 These methods do not require the spell ID as an argument.
 
+`Core.SpellInfo` also proxies every documented `C_Spell` API whose first
+argument is a spell identifier. The proxy supplies its own `spellID`, retains
+the remaining parameters and return values, and includes the WoW API
+documentation link in LuaLS:
+
+```lua
+local spellInfo = Core.Spells:GetInfo(12345)
+if spellInfo and spellInfo:IsSpellHelpful() then
+    local isUsable, insufficientPower = spellInfo:IsSpellUsable()
+    local cooldown = spellInfo:GetSpellCooldown()
+end
+```
+
 `Core.Spells:IsTeleport(spellIdentifier)` checks the Core teleport database.
 The check supports spell IDs and spell names and also considers base and
 override spell IDs. It does not inspect localized spell names or tooltips, so
