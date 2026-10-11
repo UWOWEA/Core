@@ -29,6 +29,16 @@ function Core.SpellInfo:IsTeleport()
 	return Core.Spells:IsTeleport(self.spellID)
 end
 
+---@return number[]
+function Core.SpellInfo:GetOverrides()
+    return Core.Spells:GetOverrides(self.spellID)
+end
+
+---@return number|nil
+function Core.SpellInfo:GetBaseSpell()
+    return Core.Spells:GetBaseSpell(self.spellID)
+end
+
 local function ExtendSpellInfo(info)
 	if type(info) == "table" then
 		setmetatable(info, Core.SpellInfo)
