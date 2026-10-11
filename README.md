@@ -302,6 +302,16 @@ end
 
 The result is always a table and can be empty.
 
+### `Core.Spells:GetOverrideSpell(spellIdentifier, spec, onlyKnown, ignoreOverrideSpellID)`
+
+Returns the direct override spell ID from `C_Spell.GetOverrideSpell`, including
+the same optional arguments as the WoW API. It returns `nil` when the client
+does not provide the API or the call fails:
+
+```lua
+local overrideSpellID = Core.Spells:GetOverrideSpell(spellID)
+```
+
 ### `Core.Spells:GetBaseSpell(spellIdentifier)`
 
 Returns the base spell ID for an override spell, or `nil` when no base spell

@@ -1,6 +1,7 @@
 ---@meta _
 ---@class Core.Spells
 ---@field GetOverrides fun(self: Core.Spells, spellIdentifier: string|number): number[]
+---@field GetOverrideSpell fun(self: Core.Spells, spellIdentifier: string|number, spec?: number, onlyKnown?: boolean, ignoreOverrideSpellID?: number): number|nil
 ---@field GetBaseSpell fun(self: Core.Spells, spellIdentifier: string|number): number|nil
 ---@field GetInfo fun(self: Core.Spells, spellIdentifier: string|number): Core.SpellInfo|nil
 ---@field IsTeleport fun(self: Core.Spells, spellIdentifier: string|number): boolean
@@ -14,6 +15,7 @@ Core.Spells = Core.Spells or {}
 ---@field IsHelpful fun(self: Core.SpellInfo): boolean
 ---@field IsHarmful fun(self: Core.SpellInfo): boolean
 ---@field IsTeleport fun(self: Core.SpellInfo): boolean
+---@field GetOverrideSpell fun(self: Core.SpellInfo, spec?: number, onlyKnown?: boolean, ignoreOverrideSpellID?: number): number|nil
 ---@field IsAutoAttackSpell fun(self: Core.SpellInfo): boolean
 ---@field IsSpellDisabled fun(self: Core.SpellInfo): boolean
 ---@field IsConsumableSpell fun(self: Core.SpellInfo): boolean
@@ -88,6 +90,28 @@ function Core.Spells:GetInfo(spellIdentifier)
 	return spellcache[spellIdentifier]
 end
 
+---[Documentation](https://warcraft.wiki.gg/wiki/API_C_Spell.GetOverrideSpell)
+---@param spellIdentifier string|number
+---@param spec? number Default = 0
+---@param onlyKnown? boolean Default = true
+---@param ignoreOverrideSpellID? number Default = 0
+---@return number|nil overrideSpellID
+function Core.Spells:GetOverrideSpell(spellIdentifier, spec, onlyKnown, ignoreOverrideSpellID)
+	if not (C_Spell and C_Spell.GetOverrideSpell) then
+		return
+	end
+
+	local ok, overrideSpellID = pcall(
+		C_Spell.GetOverrideSpell,
+		spellIdentifier,
+		spec,
+		onlyKnown,
+		ignoreOverrideSpellID
+	)
+	if ok then
+		return overrideSpellID
+	end
+end
 
 ---@param spellIdentifier string|number
 ---@return number[]
@@ -105,9 +129,9 @@ function Core.Spells:GetOverrides(spellIdentifier)
 		seen[auraOverride] = true
 	end
 
-	if spellIdentifier and C_Spell and C_Spell.GetOverrideSpell then
-		local ok, overrideID = pcall(C_Spell.GetOverrideSpell, spellIdentifier)
-		if ok and overrideID and overrideID > 0 and overrideID ~= spellIdentifier and not seen[overrideID] then
+	if spellIdentifier then
+		local overrideID = Core.Spells:GetOverrideSpell(spellIdentifier)
+		if overrideID and overrideID > 0 and overrideID ~= spellIdentifier and not seen[overrideID] then
 			table.insert(overrides, overrideID)
 		end
 	end

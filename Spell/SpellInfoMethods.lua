@@ -79,7 +79,7 @@ end
 ---@return number overrideSpellID
 ---@param self Core.SpellInfo
 function Core.SpellInfo:GetOverrideSpell(spec, onlyKnown, ignoreOverrideSpellID)
-    return CallSpellAPI("GetOverrideSpell", self.spellID, spec, onlyKnown, ignoreOverrideSpellID)
+    return Core.Spells:GetOverrideSpell(self.spellID, spec, onlyKnown, ignoreOverrideSpellID)
 end
 
 ---Returns nil if spell is not found
