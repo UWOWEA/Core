@@ -249,9 +249,31 @@ end
 if info and info:IsHarmful() then
     print(info.name, "is harmful")
 end
+
+if info and info:IsTeleport() then
+    print(info.name, "is a teleport spell")
+end
 ```
 
 These methods do not require the spell ID as an argument.
+
+`Core.Spells:IsTeleport(spellIdentifier)` checks the Core teleport database.
+The check supports spell IDs and spell names and also considers base and
+override spell IDs. It does not inspect localized spell names or tooltips, so
+addon tooltip changes and client locales cannot affect the result.
+
+```lua
+if Core.Spells:IsTeleport(3561) then
+    print("Teleport: Stormwind")
+end
+```
+
+The database is available as `Core.Spells.TeleportSpells` and can be extended
+by an addon before calling `IsTeleport`:
+
+```lua
+Core.Spells:RegisterTeleportSpell(12345)
+```
 
 ### `Core.Spells:GetOverrides(spellIdentifier)`
 

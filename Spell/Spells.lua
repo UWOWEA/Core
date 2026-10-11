@@ -3,11 +3,14 @@
 ---@field GetOverrides fun(self: Core.Spells, spellIdentifier: string|number): number[]
 ---@field GetBaseSpell fun(self: Core.Spells, spellIdentifier: string|number): number|nil
 ---@field GetInfo fun(self: Core.Spells, spellIdentifier: string|number): Core.SpellInfo|nil
+---@field IsTeleport fun(self: Core.Spells, spellIdentifier: string|number): boolean
+---@field RegisterTeleportSpell fun(self: Core.Spells, spellID: number)
 Core.Spells = Core.Spells or {}
 
 ---@class Core.SpellInfo: SpellInfo
 ---@field IsHelpful fun(self: Core.SpellInfo): boolean
 ---@field IsHarmful fun(self: Core.SpellInfo): boolean
+---@field IsTeleport fun(self: Core.SpellInfo): boolean
 Core.SpellInfo = Core.SpellInfo or {}
 Core.SpellInfo.__index = Core.SpellInfo
 
@@ -19,6 +22,11 @@ end
 ---@return boolean
 function Core.SpellInfo:IsHarmful()
 	return Core.Spells:IsHarmful(self.spellID)
+end
+
+---@return boolean
+function Core.SpellInfo:IsTeleport()
+	return Core.Spells:IsTeleport(self.spellID)
 end
 
 local function ExtendSpellInfo(info)
@@ -118,4 +126,59 @@ function Core.Spells:IsHarmful(spellIdentifier)
     end
 
     return false
+end
+
+---@param spellIdentifier string|number spellID or spellName
+---@return boolean
+function Core.Spells:IsTeleport(spellIdentifier)
+	local spellID
+	if type(spellIdentifier) == "number" then
+		spellID = spellIdentifier
+	else
+		local info = Core.Spells:GetInfo(spellIdentifier)
+		spellID = info and info.spellID
+	end
+
+	if type(spellID) ~= "number" then
+		return false
+	end
+
+	if not info then
+		info = Core.Spells:GetInfo(spellID)
+	end
+
+	if Core.Spells.TeleportSpells[spellID] then
+		return true
+	end
+
+	local baseSpellID = Core.Spells:GetBaseSpell(spellID)
+	if baseSpellID and Core.Spells.TeleportSpells[baseSpellID] then
+		return true
+	end
+
+	for _, overrideSpellID in ipairs(Core.Spells:GetOverrides(spellID)) do
+		if Core.Spells.TeleportSpells[overrideSpellID] then
+			return true
+		end
+	end
+
+	return false
+end
+
+---@param spellID number
+function Core.Spells:RegisterTeleportSpell(spellID)
+	if type(spellID) ~= "number" or spellID <= 0 then
+		error("Teleport spell ID must be a positive number", 2)
+	end
+
+	Core.Spells.TeleportSpells[spellID] = true
+end
+
+function Core.Spells:NormalizeSpellID(spellID)
+    if type(spellID) ~= "string" then
+        return spellID
+    end
+
+    local trimmedSpellID = spellID:match("^%s*(.-)%s*$")
+    return tonumber(trimmedSpellID) or trimmedSpellID
 end
