@@ -21,6 +21,8 @@ GameInfo.lua
 
 Commands.lua
 
+Item\Item.lua
+
 Spell\AuraOverrides.lua
 Spell\Spells.lua
 Spell\SpellInfoMethods.lua

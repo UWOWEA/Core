@@ -329,6 +329,53 @@ The helper checks Core's custom override map first and then uses
 so addons can load without failing on clients that do not expose the
 corresponding `C_Spell` functions.
 
+## Item API
+
+The Core addon exposes item helpers through the global `Core.Item` table.
+
+### `Core.Item:GetInfo(itemIdentifier)`
+
+Returns the WoW item information for an item ID, name, or item link:
+
+```lua
+local info = Core.Item:GetInfo(6948)
+if info then
+    print(info.itemName, info.itemLevel, info.itemTexture)
+end
+```
+
+The result is cached by the normalized identifier and returned as a
+`Core.ItemInfo` table. It preserves the fields returned by the client and, when
+available, includes `itemID`. Item data that is not currently available
+returns `nil`; the helper uses `C_Item.GetItemInfo` or the legacy `GetItemInfo`
+API depending on the client. Both the current multi-return API and clients
+that return an info table are supported.
+
+`Core.ItemInfo` also proxies the documented `C_Item` methods whose first
+argument is an item identifier, supplying its own identifier automatically and
+forwarding all remaining arguments and return values:
+
+```lua
+local info = Core.Item:GetInfo(6948)
+if info and info:IsConsumableItem() then
+    local count = info:GetItemCount(true)
+    local actualLevel, isPreview, sparseLevel = info:GetDetailedItemLevelInfo()
+end
+```
+
+The available proxy methods are annotated from WoW's `ItemDocumentation`.
+Methods that require an `ItemLocation`, GUID, or another unrelated first
+argument are not item-info instance methods.
+
+### `Core.Item:NormalizeItemID(itemID)`
+
+Trims whitespace and converts numeric strings to numbers. Other strings, such
+as item names and links, are returned unchanged:
+
+```lua
+local itemID = Core.Item:NormalizeItemID(" 6948 ")
+```
+
 ## Unit API
 
 `Core.Unit` provides an object-oriented proxy over WoW's global `Unit*`
